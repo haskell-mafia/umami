@@ -16,6 +16,7 @@ library
                      , transformers                    >= 0.3        && < 0.5
                      , either                          >= 4.3        && < 4.5
                      , ambiata-p
+                     , text                            == 1.2.*
 
   ghc-options:
                        -Wall
@@ -26,6 +27,16 @@ library
   exposed-modules:
                        Paths_ambiata_umami
                        Umami
+
+                       Umami.Monad.FreshT
+                       Umami.Monad.FixT
+
+                       Umami.Pretty.Base
+                       Umami.Pretty.Class
+                       Umami.Pretty.Combinators
+                       Umami.Pretty.Render
+                       Umami.Pretty.Simple
+                       Umami.Pretty
 
 test-suite test
   type:                exitcode-stdio-1.0
