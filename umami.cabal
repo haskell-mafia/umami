@@ -56,3 +56,4 @@ test-suite test
                      , ambiata-p
                      , QuickCheck                      == 2.7.*
                      , quickcheck-instances            == 0.3.*
+                     , text                            == 1.2.*

@@ -42,7 +42,7 @@ convert rest
             (l',le) = convert m' l
         in if   re && le
            then (l', True)
-           else convert r' l
+           else (fst $ convert r' l, re || le)
     D.Annotate a d
      -> let (d',de) = convert (AnnotNo a rest) d
         in  (AnnotOn a d', de)
