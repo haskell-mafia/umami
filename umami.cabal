@@ -36,6 +36,7 @@ library
                        Umami.Pretty.Combinators
                        Umami.Pretty.Render
                        Umami.Pretty.Simple
+                       Umami.Pretty.Tabular
                        Umami.Pretty
 
 test-suite test

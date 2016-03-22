@@ -8,17 +8,17 @@ module Umami.Pretty.Simple (
 import qualified    Umami.Pretty.Base as D
 
 import              P
-import qualified    Data.Text as T
 
 data SimpleDoc a
  = Empty
- | Text !T.Text (SimpleDoc a)
- | Space        (SimpleDoc a)
- | Line         (SimpleDoc a)
- | IndentOn     (SimpleDoc a)
- | IndentNo     (SimpleDoc a)
- | AnnotOn  !a  (SimpleDoc a)
- | AnnotNo  !a  (SimpleDoc a)
+ | Text   !Text !(SimpleDoc a)
+ | Space        !(SimpleDoc a)
+ | Line         !(SimpleDoc a)
+ | Tab          !(SimpleDoc a)
+ | IndentOn     !(SimpleDoc a)
+ | IndentNo     !(SimpleDoc a)
+ | AnnotOn  !a  !(SimpleDoc a)
+ | AnnotNo  !a  !(SimpleDoc a)
  deriving (Eq, Ord, Show)
 
 simpleDocOfDoc :: D.Doc a -> SimpleDoc a
@@ -30,8 +30,9 @@ convert rest
  = \case
     D.Empty     -> (rest, False)
     D.Text t    -> (Text t rest, True)
-    D.Space     -> (Space rest, False)
-    D.Line      -> (Line  rest, False)
+    D.Space     -> (Space  rest, False)
+    D.Line      -> (Line   rest, False)
+    D.Tab       -> (Tab    rest, False)
     D.Indent d
      -> let (d',de) = convert (IndentNo rest) d
         in  (IndentOn d', de)
@@ -47,21 +48,4 @@ convert rest
      -> let (d',de) = convert (AnnotNo a rest) d
         in  (AnnotOn a d', de)
 
-    
 
-{-
-
-u <> Indent (v <> Indent (w <> Line <> x) <> y)
-
-u v w
-=>=>x
-=>y
-
-vs
-
-u v w
-=>x
-=>y
-
-
--}

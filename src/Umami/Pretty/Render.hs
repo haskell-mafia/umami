@@ -1,106 +1,140 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
--- | Faster version of rendering
+-- | "Tabular layout" version of rendering
 module Umami.Pretty.Render (
-    renderM
-  , renderText
-  , RenderOptions(..)
-  , defaultRenderOptions
+    textTabsOfDoc
+  , renderTabularLayout
+  , renderSimpleLayout
+  , renderIndentLayout
   ) where
 
-import              Umami.Pretty.Simple
+import qualified    Umami.Pretty.Base   as B
+import qualified    Umami.Pretty.Simple as S
+import              Umami.Pretty.Tabular
 
 import              P
 import qualified    Data.Text as T
-import              Control.Monad.Trans.State
 
-data RenderOptions a
- = RenderOptions
- { roAnnotateOn  :: a -> T.Text
- , roAnnotateNo  :: a -> T.Text
- , roIndentText  :: T.Text
- }
+import              Data.List (zip, zipWith, repeat)
 
-defaultRenderOptions :: RenderOptions a
-defaultRenderOptions
- = RenderOptions
- { roAnnotateOn = const ""
- , roAnnotateNo = const ""
- , roIndentText = "  " }
-
-
-data RenderState
- = RenderState
- { rsStartOfLine :: !Bool
- , rsIndentLevel :: !Int
- , rsIndents     :: [Bool]
- , rsIndentedYet :: !Bool
- }
-
-
-renderText :: RenderOptions a -> SimpleDoc a -> T.Text
-renderText opts d
- = execState (renderM opts app d) ""
+renderSimpleLayout :: B.RenderOptions a -> B.Doc a -> Text
+renderSimpleLayout opts doc
+ = go $ S.simpleDocOfDoc doc
  where
-  app t = modify (\s -> s <> t)
+  go = \case
+   S.Empty -> ""
+   S.Text t r -> t    <> go r
+   S.Space  r -> " "  <> go r
+   S.Line   r -> "\n" <> go r
+   S.Tab    r -> "\t" <> go r
+   S.IndentOn   r     -> go r
+   S.IndentNo   r     -> go r
+   S.AnnotOn  a r -> B.roAnnotateOn opts a <> go r
+   S.AnnotNo  a r -> B.roAnnotateNo opts a <> go r
 
-
-renderM :: Monad m => RenderOptions a -> (T.Text -> m b) -> SimpleDoc a -> m b
-renderM opts f
- = go (RenderState True 0 [] False)
+renderIndentLayout :: B.RenderOptions a -> B.Doc a -> Text
+renderIndentLayout opts doc
+ = mconcat
+ $ fmap go
+ $ textTabsOfDoc opts
+ $ tabDocOfSimpleDoc
+ $ S.simpleDocOfDoc doc
  where
+  go []     = "\n"
+  go [t]    = t <> "\n"
+  go (t:ts) = t <> " " <> go ts
 
-  fText s t r
-   | rsStartOfLine s
-   = f (T.replicate (rsIndentLevel s) (roIndentText opts) <> t)
-   >> go s { rsStartOfLine = False, rsIndentedYet = False } r
-   | otherwise
-   = f t
-   >> go s r
+renderTabularLayout :: B.RenderOptions a -> B.Doc a -> Text
+renderTabularLayout opts doc
+ = renderTabular'
+ $ textTabsOfDoc opts
+ $ tabDocOfSimpleDoc
+ $ S.simpleDocOfDoc doc
 
-  -- Keep track of all document before and after
-  -- inside current indent
-  go s
+
+textTabsOfDoc :: B.RenderOptions a -> TabDoc a -> [[Text]]
+textTabsOfDoc opts (TabDoc lines)
+ = fmap (textTabsOfLine opts) lines
+
+textTabsOfLine :: B.RenderOptions a -> Line a -> [Text]
+textTabsOfLine opts line
+ = case fmap go (lineTabs line) of
+    []     -> []
+    (t:ts) -> indent <> t : ts
+ where
+  indent = T.replicate (lineIndent line) (B.roIndentText opts)
+
+  go = fold . fmap textOfElement
+
+  textOfElement
    = \case
-      Empty
-       -> f ""
-      Text t r
-       -> fText s t r
-      Space  r
-       | rsStartOfLine s
-       -> go s r
-       | otherwise
-       -> f " " >> go s r
-      Line   r
-       ->  f "\n"
-       >> go (s { rsStartOfLine = True }) r
+      Text t    -> t
+      Space     -> " "
+      AnnotOn a -> B.roAnnotateOn opts a
+      AnnotNo a -> B.roAnnotateNo opts a
 
-      IndentOn r
-       -> let shift = not (rsIndentedYet s)
-              level'| shift
-                    = rsIndentLevel s + 1
-                    | otherwise
-                    = rsIndentLevel s
-              indents' = shift : rsIndents s
-              s'    = s { rsIndentedYet = True, rsIndentLevel = level', rsIndents = indents' }
-          in go s' r
+ 
+renderTabular' :: [[Text]] -> Text
+renderTabular' lines
+ = mconcat
+ $ fmap go
+ $ makePadded lines
+ where
+  go []      = "\n"
+  go [(_,t)] = t <> "\n"
+  go ((w,t):ts)
+   = let len    = T.length t
+         padlen = w - len + 1
+         pad    = T.replicate padlen " "
+     in t <> pad <> go ts
 
-      IndentNo r
-       -> let (sh,is') = case rsIndents s of
-                          [] -> (False, [])
-                          (i:is) -> (i,is)
-              level'   | sh
-                       = rsIndentLevel s - 1
-                       | otherwise
-                       = rsIndentLevel s
+makePadded :: [[Text]] -> [[(Int, Text)]]
+makePadded ts
+ = go [0] ts
+ where
+  go _ []
+   = []
+  go w (l:ls)
+   = let len= length w
 
-              s' = s { rsIndentedYet = not sh, rsIndentLevel = level', rsIndents = is' }
-          in go s' r
+         w' | len < length l
+            = slurp len w (l:ls)
+            | otherwise
+            = w
+         zipped
+            = (w' <> repeat 0) `zip` l
 
-      AnnotOn a r
-       -> fText s (roAnnotateOn opts a) r
+     in  zipped : go w' ls
 
-      AnnotNo a r
-       -> fText s (roAnnotateNo opts a) r
+  slurp _ w []
+   = w
+  slurp len w (l:ls)
+   | length l < len
+   = w
+   | otherwise
+   = slurp len (collectWidths w l) ls
 
+
+collectWidths :: [Int] -> [Text] -> [Int]
+collectWidths ws ts
+ = zipWith max (ws <> repeat 0)
+ $ getWidths ts
+
+
+getWidths :: [Text] -> [Int]
+getWidths ts
+ = fmap T.length ts
+
+{-
+
+
+first line          | []        | []
+foo  \t bar         | [ 3 ]     | [ 4 ]
+fooo \t bazzo       | [ 4 ]     | [ 4 ]
+last line           | []        | []
+fop \t bobobo       | [ 3 ]     | [ 3 ]
+
+
+
+-}

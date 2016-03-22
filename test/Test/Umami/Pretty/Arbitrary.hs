@@ -3,45 +3,31 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Test.Umami.Pretty.Arbitrary where
 
+import           Disorder.Core
 import           Disorder.Corpus
 import           Test.QuickCheck
 
 import           P
+import qualified Data.Text as T
 
 
 import Umami.Pretty.Base
 
 gen_doc :: Gen a -> Gen (Doc a)
 gen_doc ann
- = oneof_sized
+ = oneofSized
     [ return Empty
+    -- Try with some 'normal' textual inputs 
     , Text <$> elements waters
+    -- But add some totally crazy stuff in there too
+    , Text . T.pack <$> arbitrary
     , return Space
+    , return Tab
     , return Line ]
-    [ Indent <$> go
-    -- Assume the joiner is white-space only
-    , CatWith <$> go <*> return Space <*> go
-    , Annotate <$> ann <*> go ]
+    [ Indent    <$> go
+    , CatWith   <$> go  <*> go <*> go
+    , Annotate  <$> ann <*> go ]
  where
   go = gen_doc ann
 
-
--- I really must add these to Disorder
-
--- | Make a smaller generator
-smaller :: Gen a -> Gen a
-smaller g
- = sized
- $ \s -> resize (s `div` 2) g
-
--- | Take list of small generators and list of large generators.
--- Look at the size of thing we want to create, and use either small or both
-oneof_sized :: [Gen a] -> [Gen a] -> Gen a
-oneof_sized smalls bigs
- = sized
- $ \s -> if   s <= 1
-         then oneof  smalls
-         else oneof (smalls <> bigs')
- where
-  bigs'   = fmap smaller bigs
 

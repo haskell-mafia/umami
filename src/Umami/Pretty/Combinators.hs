@@ -13,7 +13,6 @@ module Umami.Pretty.Combinators (
 import              Umami.Pretty.Base
 
 import              P hiding (empty, fold)
-import qualified    Data.Text as T
 
 
 {-
@@ -41,7 +40,7 @@ hcat = fold (<>)
 empty :: Doc a
 empty = Empty
 
-text :: T.Text -> Doc a
+text :: Text -> Doc a
 text = Text
 
 line :: Doc a
