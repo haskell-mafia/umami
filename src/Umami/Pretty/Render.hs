@@ -99,9 +99,10 @@ makePadded ts
    = let len= length w
 
          w' | len < length l
-            = slurp len w (l:ls)
+            = -- throwlast l
+              slurp len w (l:ls)
             | otherwise
-            = w
+            = throwlast l w
          zipped
             = (w' <> repeat 0) `zip` l
 
@@ -110,11 +111,15 @@ makePadded ts
   slurp _ w []
    = w
   slurp len w (l:ls)
-   | length l < len
+   | length l <= len
    = w
    | otherwise
    = slurp len (collectWidths w l) ls
 
+  throwlast [] _ = []
+  throwlast [_] (_:_) = [0]
+  throwlast (_:ts) (w:ws) = w : throwlast ts ws
+  throwlast (_:ts) [] = 0 : throwlast ts []
 
 collectWidths :: [Int] -> [Text] -> [Int]
 collectWidths ws ts

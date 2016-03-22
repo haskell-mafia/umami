@@ -1,4 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE LambdaCase #-}
 module Umami.Pretty.Tabular (
     TabDoc(..), Line(..), Element(..)
@@ -82,11 +83,19 @@ flushTab s
 insertElement :: State a -> Element a -> State a
 insertElement s e
  = s
- { stateTab  = insert' e (stateTab s) }
+ { stateTab        = insert' e (stateTab s)
+ , stateIndentThis = indentThis' }
  where
   insert' Space []           = []
   insert' Space (Space : ts) = (Space : ts)
   insert' _     ts           = (e     : ts)
+
+  indentThis'
+   | null $ stateTab  s
+   , null $ stateLine s
+   = stateIndentNext s
+   | otherwise
+   = stateIndentThis s
 
 
 indentOn :: State a -> State a

@@ -2,8 +2,8 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Umami.Pretty.Combinators (
-    empty, text, line, space, indent
-  , (</>), (<+>)
+    empty, text, line, space, tab, indent
+  , (</>), (<+>), (<#>)
   , hsep, vcat, hcat
   , annotate
 
@@ -46,6 +46,9 @@ text = Text
 line :: Doc a
 line = Line
 
+tab :: Doc a
+tab = Tab
+
 space :: Doc a
 space = Space
 
@@ -61,6 +64,10 @@ infixr 6 <+>
 
 (<+>) :: Doc a -> Doc a -> Doc a
 (<+>) = joined space
+
+(<#>) :: Doc a -> Doc a -> Doc a
+(<#>) = joined tab
+
 
 joined :: Doc a -> Doc a -> Doc a -> Doc a
 joined m l r = CatWith l m r
