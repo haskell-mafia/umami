@@ -16,6 +16,7 @@ library
                      , transformers                    >= 0.3        && < 0.5
                      , either                          >= 4.3        && < 4.5
                      , ambiata-p
+                     , text                            == 1.2.*
 
   ghc-options:
                        -Wall
@@ -26,6 +27,17 @@ library
   exposed-modules:
                        Paths_ambiata_umami
                        Umami
+
+                       Umami.Monad.FreshT
+                       Umami.Monad.FixT
+
+                       Umami.Pretty.Base
+                       Umami.Pretty.Class
+                       Umami.Pretty.Combinators
+                       Umami.Pretty.Render
+                       Umami.Pretty.Simple
+                       Umami.Pretty.Tabular
+                       Umami.Pretty
 
 test-suite test
   type:                exitcode-stdio-1.0
@@ -45,3 +57,22 @@ test-suite test
                      , ambiata-p
                      , QuickCheck                      == 2.7.*
                      , quickcheck-instances            == 0.3.*
+                     , text                            == 1.2.*
+
+test-suite example
+  type:                exitcode-stdio-1.0
+
+  main-is:             example.hs
+
+  ghc-options:         -Wall -threaded -O2
+
+  hs-source-dirs:
+                       example
+
+  build-depends:
+                       base                            >= 3          && < 5
+                     , ambiata-umami
+                     , ambiata-disorder-core
+                     , ambiata-disorder-corpus
+                     , ambiata-p
+                     , text                            == 1.2.*
