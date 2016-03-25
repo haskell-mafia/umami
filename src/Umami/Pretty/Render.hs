@@ -90,8 +90,8 @@ renderTabular' lines
      in t <> pad <> go ts
 
 makePadded :: [[Text]] -> [[(Int, Text)]]
-makePadded ts
- = go [0] ts
+makePadded
+ = go [0]
  where
   go _ []
    = []

@@ -11,14 +11,15 @@ import              P
 
 data SimpleDoc a
  = Empty
- | Text   !Text !(SimpleDoc a)
- | Space        !(SimpleDoc a)
- | Line         !(SimpleDoc a)
- | Tab          !(SimpleDoc a)
- | IndentOn     !(SimpleDoc a)
- | IndentNo     !(SimpleDoc a)
- | AnnotOn  !a  !(SimpleDoc a)
- | AnnotNo  !a  !(SimpleDoc a)
+ -- Perhaps surprisingly, making the remainder document strict is detrimental to performance
+ | Text   !Text (SimpleDoc a)
+ | Space        (SimpleDoc a)
+ | Line         (SimpleDoc a)
+ | Tab          (SimpleDoc a)
+ | IndentOn     (SimpleDoc a)
+ | IndentNo     (SimpleDoc a)
+ | AnnotOn  !a  (SimpleDoc a)
+ | AnnotNo  !a  (SimpleDoc a)
  deriving (Eq, Ord, Show)
 
 simpleDocOfDoc :: D.Doc a -> SimpleDoc a
