@@ -28,3 +28,7 @@ instance Pretty Float a where
 instance Pretty Double a where
  pretty = prettyShow
 
+-- Why not?
+instance Pretty (Doc a) a where
+ pretty = id
+

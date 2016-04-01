@@ -39,6 +39,12 @@ library
                        Umami.Pretty.Tabular
                        Umami.Pretty
 
+                       Umami.Pipeline.Base
+                       Umami.Pipeline.Pipe
+                       Umami.Pipeline.Section
+                       Umami.Pipeline.Step
+                       Umami.Pipeline.Tap
+
 test-suite test
   type:                exitcode-stdio-1.0
 
