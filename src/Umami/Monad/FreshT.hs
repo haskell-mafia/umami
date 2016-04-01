@@ -20,9 +20,10 @@ import              Data.Functor.Identity
 
 -- | Evaluate fresh transformer
 -- Takes the action to perform, as well as a generator function and a starting number (probably zero)
-evalFreshT :: Functor m => FreshT n m a -> FreshFun n -> Int -> m a
+evalFreshT :: Monad m => FreshT n m a -> FreshFun n -> Int -> m a
 evalFreshT m fun st
- = fst <$> runFreshT m fun st
+ = do (r,_) <- runFreshT m fun st
+      return r
 
 -- | Evaluate fresh monad
 evalFresh :: Fresh n a -> FreshFun n -> Int -> a

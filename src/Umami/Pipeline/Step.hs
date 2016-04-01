@@ -40,7 +40,7 @@ data StepRunOptionalConfig
 data StepRunFixConfig
  = StepRunFixConfig
  { stepRunFixEnabled            :: Bool
- -- I think this will be useful later
+ -- I think this would be useful later
  -- , stepRunFixShowEveryIteration :: Bool
  }
 

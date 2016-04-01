@@ -10,9 +10,9 @@ module Umami.Pipeline.Base (
   , SectionM
   , Id(..)
   , Info(..)
-  , IdQualified(..)
-  , emptyQualified
-  , suffixQualified
+  , IdPath(..)
+  , emptyPath
+  , suffixPath
   ) where
 
 import Umami.Monad.FreshT
@@ -46,15 +46,15 @@ data Info
  , infoDesc :: Text }
  deriving Show
 
-data IdQualified
- = IdQualified [Id]
+data IdPath
+ = IdPath [Id]
  deriving (Eq, Show)
 
-emptyQualified :: IdQualified
-emptyQualified = IdQualified []
+emptyPath :: IdPath
+emptyPath = IdPath []
 
-suffixQualified :: IdQualified -> Id -> IdQualified
-suffixQualified (IdQualified is) i = IdQualified (i : is)
+suffixPath :: IdPath -> Info -> IdPath
+suffixPath (IdPath is) i = IdPath (infoId i : is)
 
 
 instance Pretty Id b where
@@ -63,8 +63,9 @@ instance Pretty Id b where
 instance Pretty Info b where
  pretty t = pretty (infoId t) <> ":" <#> text (infoDesc t)
 
-instance Pretty IdQualified b where
- pretty (IdQualified is)
+instance Pretty IdPath b where
+ pretty (IdPath is)
   = punctuate "."
-  $ fmap pretty is
+  $ fmap pretty
+  $ reverse is
 

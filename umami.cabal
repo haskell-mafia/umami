@@ -17,6 +17,7 @@ library
                      , either                          >= 4.3        && < 4.5
                      , ambiata-p
                      , text                            == 1.2.*
+                     , containers                      == 0.5.*
 
   ghc-options:
                        -Wall
@@ -41,6 +42,7 @@ library
 
                        Umami.Pipeline.Base
                        Umami.Pipeline.Pipe
+                       Umami.Pipeline.Run
                        Umami.Pipeline.Section
                        Umami.Pipeline.Step
                        Umami.Pipeline.Tap
