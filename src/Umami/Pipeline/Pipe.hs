@@ -15,15 +15,13 @@ import Umami.Pipeline.Section
 import Umami.Monad.FreshT
 import Umami.Pretty
 
-import              P
 
 
 data Pipe c u v where
  PipeNest    :: Info
              -> Pipe c u v
              -> Pipe c u v
- PipeSection :: NFData v
-             => FreshFun n
+ PipeSection :: FreshFun n
              -> Section c n u v
              -> Pipe    c u v
  PipeCompose :: Pipe    c u v

@@ -55,7 +55,7 @@ runPipeNamed run q p u
     PipeSection freshfun s
      -> runSection run q freshfun s u
 
-runSection :: (Types c, NFData v, Monad m) => RunConfig c m -> IdPath -> FreshFun n -> Section c n u v -> u -> m v
+runSection :: (Types c, Monad m) => RunConfig c m -> IdPath -> FreshFun n -> Section c n u v -> u -> m v
 runSection run q freshfun s u
  = evalFreshT go freshfun 0
  where

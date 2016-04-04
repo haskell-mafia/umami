@@ -74,13 +74,13 @@ infixr 6 <+>
 
 
 joinIf :: Doc a -> Doc a -> Doc a -> Doc a
-joinIf m l r = CatWith l m r
+joinIf m l r = CatWith CatFunAnd l m r
 
 prefixIf :: Doc a -> Doc a -> Doc a
-prefixIf l r = CatWith emptyNotWhite l r
+prefixIf l r = CatWith CatFunOr emptyDoc l r
 
 suffixIf :: Doc a -> Doc a -> Doc a
-suffixIf r l = CatWith l r emptyNotWhite
+suffixIf r l = CatWith CatFunOr l r emptyDoc
 
 joinAlways :: Doc a -> Doc a -> Doc a -> Doc a
 joinAlways m l r = l <> m <> r
@@ -103,7 +103,7 @@ fold f (d:ds)
 punctuate :: Doc a -> [Doc a] -> Doc a
 punctuate _ []      = emptyDoc
 punctuate _ [d]     = d
-punctuate p (d:ds)  = CatWith d p (punctuate d ds)
+punctuate p (d:ds)  = joinIf p d (punctuate d ds)
 
 
 encloseSep :: Doc a -> Doc a -> Doc a -> [Doc a] -> Doc a

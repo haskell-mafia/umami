@@ -10,6 +10,7 @@ module Umami.Pipeline.Tap (
     Tap(..)
   , TapConfig(..)
   , isTapOn
+  , emptyTapConfig
   ) where
 
 import Umami.Pipeline.Base
@@ -32,6 +33,9 @@ newtype TapConfig
 isTapOn :: Info -> TapConfig -> Bool
 isTapOn i t
  = Set.member (infoId i) (tapConfig t)
+
+emptyTapConfig :: TapConfig
+emptyTapConfig = TapConfig Set.empty
 
 instance Pretty (Tap c n a) b where
  pretty = pretty . tapInfo

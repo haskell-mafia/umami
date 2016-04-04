@@ -46,6 +46,7 @@ library
                        Umami.Pipeline.Section
                        Umami.Pipeline.Step
                        Umami.Pipeline.Tap
+                       Umami.Pipeline
 
 test-suite test
   type:                exitcode-stdio-1.0
@@ -84,3 +85,6 @@ test-suite example
                      , ambiata-disorder-corpus
                      , ambiata-p
                      , text                            == 1.2.*
+                     , transformers                    >= 0.3        && < 0.5
+                     , either
+                     , containers

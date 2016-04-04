@@ -36,13 +36,13 @@ data SectionPre c n u v
 
 instance Pretty (Section c n u v) b where
  pretty s
-  =   pretty (sectionInfo s)
-  </> prefix " initial taps:"
-             (pretty $ sectionPreTaps $ sectionPre s)
-  </> prefix " further steps:"
-             (vcat $ fmap pretty $ sectionSteps s)
-  </> prefix " available taps:"
-             (vcat $ fmap pretty $ sectionTaps s)
+  =
+  vcat 
+  [ pretty (sectionInfo s)
+  , prefix " initial taps:"   (pretty $ sectionPreTaps $ sectionPre s)
+  , prefix " further steps:"  (vcat $ fmap pretty $ sectionSteps s)
+  , prefix " available taps:" (vcat $ fmap pretty $ sectionTaps s)
+  ]
   where
    prefix l r
     = prefixIf (l <> line) (indent r)

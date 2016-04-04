@@ -5,6 +5,7 @@
 module Umami.Pretty.Base (
     Doc(..)
   , RenderOptions(..)
+  , CatFun(..)
   , defaultRenderOptions
   , renderWithoutLayout
   ) where
@@ -24,13 +25,16 @@ data Doc a
  | Indent (Doc a)
  -- | CatWith l m r joins l and r, separated by m
  -- if l and r are both non-empty non-white
- | CatWith (Doc a) (Doc a) (Doc a)
+ | CatWith CatFun (Doc a) (Doc a) (Doc a)
  | Annotate !a (Doc a)
  deriving (Eq, Ord, Show, Functor)
 
+data CatFun = CatFunAnd | CatFunOr
+ deriving (Eq, Ord, Show)
+
 instance Monoid (Doc a) where
  mempty      = Empty
- mappend l r = CatWith l Empty r
+ mappend l r = CatWith CatFunOr l Empty r
 
 instance IsString (Doc a) where
     fromString = Text . T.pack
@@ -62,15 +66,18 @@ renderWithoutLayout opts doc
    Line     -> ("\n", False)
    Tab      -> ("\t", False)
    Indent d -> go d
-   CatWith l m r
+   CatWith cf l m r
     -> let (l',le) = go l
            (m', _) = go m
            (r',re) = go r
-       in if   le && re
+       in if   cfun cf le re
           then (l' <> m' <> r', True)
           else (l' <> r', le || re)
    Annotate a d
     -> let (d',de) = go d
        in ( roAnnotateOn opts a <> d' <> roAnnotateNo opts a
            , de)
+
+  cfun CatFunAnd = (&&)
+  cfun CatFunOr  = (||)
 

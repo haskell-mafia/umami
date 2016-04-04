@@ -25,9 +25,10 @@ gen_doc ann
     , return Tab
     , return Line ]
     [ Indent    <$> go
-    , CatWith   <$> go  <*> go <*> go
+    , CatWith   <$> cfun <*> go  <*> go <*> go
     , Annotate  <$> ann <*> go ]
  where
   go = gen_doc ann
+  cfun = elements [CatFunAnd, CatFunOr]
 
 
