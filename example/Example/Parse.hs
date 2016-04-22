@@ -29,7 +29,7 @@ tokenise = go . T.unpack
    = TParenL : go cs
   go (')':cs)
    = TParenR : go cs
-  go ('\'':cs)
+  go ('\\':cs)
    = TLambda : go cs
   go ('.':cs)
    = TDot : go cs
@@ -75,7 +75,10 @@ parse top
         goApps' t ts'
   goApps' t ts
    = case go ts of
-     Left _ -> return (t,ts)
+     Left _
+      -> case ts of
+          (_:ts') -> return (t,ts')
+          []      -> return (t,[])
      Right (t',ts') -> goApps' (XApp t t') ts'
 
   go [] = Left "unexpected eof"
@@ -112,9 +115,9 @@ parse top
   checkEnd (_,g)  = Left ("Error: end expected at " <> T.pack (show g))
 
 
-instance Pretty Token b where
- pretty = \case
-  TVar v -> pretty v
+prettyToken :: Token -> Doc b
+prettyToken = \case
+  TVar v -> prettyVar v
   TParenL -> "("
   TParenR -> ")"
   TLambda -> "\\"

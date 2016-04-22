@@ -1,10 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternGuards #-}
 module Umami.Pipeline.Tap (
     Tap(..)
@@ -14,6 +10,7 @@ module Umami.Pipeline.Tap (
   ) where
 
 import Umami.Pipeline.Base
+
 import Umami.Pretty
 
 import              P
@@ -36,11 +33,4 @@ isTapOn i t
 
 emptyTapConfig :: TapConfig
 emptyTapConfig = TapConfig Set.empty
-
-instance Pretty (Tap c n a) b where
- pretty = pretty . tapInfo
-
-instance Pretty TapConfig b where
- pretty = punctuate ", " . fmap pretty . Set.toList . tapConfig
-
 

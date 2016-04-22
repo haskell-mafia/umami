@@ -1,10 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternGuards #-}
 module Umami.Pipeline.Step (
     Step(..)
@@ -16,7 +12,6 @@ module Umami.Pipeline.Step (
 import Umami.Pipeline.Base
 import Umami.Pipeline.Tap
 
-import Umami.Pretty
 import Umami.Monad.FixT
 
 import              P
@@ -43,32 +38,4 @@ data StepRunFixConfig
  -- I think this would be useful later
  -- , stepRunFixShowEveryIteration :: Bool
  }
-
-
-instance Pretty (Step c n a) b where
- pretty s
-  =   pretty (stepInfo s) </> pretty (stepRun s) </> taps
-  where
-   taps
-    = prefixIf (" taps: " <> tab)
-               (pretty $ stepTaps s)
-
-instance Pretty (StepRun m a) b where
-  pretty (StepRunMandatory _)
-   = emptyDoc
-
-  pretty (StepRunOptional _ c)
-   | stepRunOptionalEnabled c
-   = "(optional)"
-   | otherwise
-   = "(disabled)"
-
-  pretty (StepRunFix _ c)
-   = "(fixpoint)"
-   <> ift (not $ stepRunFixEnabled c) "(disabled)"
-   where
-    ift b d
-     = if   b
-       then d
-       else emptyDoc
 

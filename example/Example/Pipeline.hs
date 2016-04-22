@@ -61,7 +61,7 @@ sectionParse
  { sectionInfo = info "parse" "Parse from tokens"
  , sectionPre  = sectionDo parse'
  , sectionSteps= []
- , sectionTaps = [tapShow, tapPretty] }
+ , sectionTaps = [tapShow, tapPretty prettyExp] }
  where
   parse' :: [Token] -> SectionM ExamplePipe Var Exp
   parse' t
@@ -83,7 +83,7 @@ runConfig
    = lift
    $ TIO.putStr
    $ PR.renderTabularLayout defaultRenderOptions
-   ( "At " <> pretty ip <> ":" <> line <> indent d <> line)
+   ( "At " <> prettyIdPath ip <> ":" <> line <> indent d <> line)
 
 run :: (Show a, Show b) => Pipe ExamplePipe a b -> a -> IO ()
 run p a
@@ -98,11 +98,11 @@ tapShow
  , tapOut  = return . text . T.pack . show
  }
 
-tapPretty :: Pretty a () => Tap ExamplePipe Var a
-tapPretty
+tapPretty :: (a -> Doc ()) -> Tap ExamplePipe Var a
+tapPretty f
  = Tap
  { tapInfo = info "pretty" "Use Pretty instance"
- , tapOut  = return . pretty
+ , tapOut  = return . f
  }
 
 

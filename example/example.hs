@@ -4,6 +4,7 @@
 
 import Example.Pipeline
 
+import              Umami.Pipeline
 import              Umami.Pretty
 import qualified    Umami.Pretty.Render  as PR
 import qualified    Umami.Pretty.Simple  as PS
@@ -23,7 +24,7 @@ main
         -- putStrLn $ show $ (pretty pipe :: Doc ())
         -- putStrLn $ show $ PS.simpleDocOfDoc $ (pretty pipe :: Doc ())
         -- putStrLn $ show $ toTabs $ pretty pipe
-        render (pretty pipe)
+        render (prettyPipe pipe)
         let args' = T.unwords $ fmap T.pack args
         run pipe args'
 

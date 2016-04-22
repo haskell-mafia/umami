@@ -2,8 +2,6 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 module Umami.Pipeline.Base (
     Types(..)
   , PipeM
@@ -16,7 +14,6 @@ module Umami.Pipeline.Base (
   ) where
 
 import Umami.Monad.FreshT
-import Umami.Pretty
 
 import              P
 import Control.Monad.Trans.Either
@@ -55,17 +52,4 @@ emptyPath = IdPath []
 
 suffixPath :: IdPath -> Info -> IdPath
 suffixPath (IdPath is) i = IdPath (infoId i : is)
-
-
-instance Pretty Id b where
- pretty = text . idName
-
-instance Pretty Info b where
- pretty t = pretty (infoId t) <> ":" <#> text (infoDesc t)
-
-instance Pretty IdPath b where
- pretty (IdPath is)
-  = punctuate "."
-  $ fmap pretty
-  $ reverse is
 

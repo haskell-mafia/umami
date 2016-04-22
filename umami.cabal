@@ -33,7 +33,6 @@ library
                        Umami.Monad.FixT
 
                        Umami.Pretty.Base
-                       Umami.Pretty.Class
                        Umami.Pretty.Combinators
                        Umami.Pretty.Render
                        Umami.Pretty.Simple
@@ -46,6 +45,7 @@ library
                        Umami.Pipeline.Section
                        Umami.Pipeline.Step
                        Umami.Pipeline.Tap
+                       Umami.Pipeline.Pretty
                        Umami.Pipeline
 
 test-suite test
