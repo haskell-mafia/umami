@@ -13,13 +13,14 @@ import Umami.Pipeline.Base
 import Umami.Pipeline.Tap
 
 import Umami.Monad.FixT
+import Umami.Monad.FreshT
 
 import              P
 
-data Step c n a
+data Step m n a
  = Step
  { stepInfo     :: Info
- , stepRun      :: StepRun (SectionM c n) a
+ , stepRun      :: StepRun (FreshT n m) a
  , stepTaps     :: TapConfig
  }
 

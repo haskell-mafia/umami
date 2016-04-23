@@ -11,6 +11,7 @@ module Example.Pipeline where
 import Example.Parse
 import Example.Source
 
+import              Umami.Monad.FreshT
 import              Umami.Pretty
 import qualified    Umami.Pretty.Render  as PR
 
@@ -19,7 +20,6 @@ import              Umami.Pipeline
 import              P
 import qualified    Data.Text as T
 
-import              Data.Functor.Identity
 import              Control.Monad.Trans.Class
 import              Control.Monad.Trans.Either
 
@@ -30,14 +30,9 @@ import qualified    System.IO     as IO
 import qualified    Data.Set as Set
 
 
-data ExamplePipe
+type ExampleM = Either Text
 
-instance Types ExamplePipe where
- type TypesMonad      ExamplePipe = Identity
- type TypesError      ExamplePipe = Text
- type TypesAnnotation ExamplePipe = ()
-
-pipe :: Pipe ExamplePipe Text Exp
+pipe :: Pipe ExampleM () Text Exp
 pipe
  = PipeSection dummyFresh sectionToken
  `PipeCompose`
@@ -46,7 +41,7 @@ pipe
  where
   dummyFresh _ _ = Var ""
 
-sectionToken :: Section ExamplePipe Var Text [Token]
+sectionToken :: Section ExampleM () Var Text [Token]
 sectionToken
  = Section
  { sectionInfo = info "token" "Tokenise from Text"
@@ -55,7 +50,7 @@ sectionToken
  , sectionTaps = [tapShow] }
 
 
-sectionParse :: Section ExamplePipe Var [Token] Exp
+sectionParse :: Section ExampleM () Var [Token] Exp
 sectionParse
  = Section
  { sectionInfo = info "parse" "Parse from tokens"
@@ -63,19 +58,19 @@ sectionParse
  , sectionSteps= []
  , sectionTaps = [tapShow, tapPretty prettyExp] }
  where
-  parse' :: [Token] -> SectionM ExamplePipe Var Exp
+  parse' :: [Token] -> FreshT Var ExampleM Exp
   parse' t
-   = lift (hoistEither $ parse t)
+   = lift $ parse t
 
 
-runConfig :: RunConfig ExamplePipe (EitherT (IdPath,Text) IO)
+runConfig :: RunConfig ExampleM (EitherT (IdPath,Text) IO) ()
 runConfig
  = RunConfig
  { runConfigLift   = runlift
  , runConfigPutDoc = runput }
  where
   runlift ip m
-   = case runIdentity $ runEitherT m of
+   = case m of
      Left e -> left (ip,e)
      Right r -> return r
 
@@ -85,20 +80,20 @@ runConfig
    $ PR.renderTabularLayout defaultRenderOptions
    ( "At " <> prettyIdPath ip <> ":" <> line <> indent d <> line)
 
-run :: (Show a, Show b) => Pipe ExamplePipe a b -> a -> IO ()
+run :: (Show a, Show b) => Pipe ExampleM () a b -> a -> IO ()
 run p a
  = do r <- runEitherT $ runPipe runConfig p a
       IO.putStrLn $ either show show r
 
 
-tapShow :: Show a => Tap ExamplePipe Var a
+tapShow :: Show a => Tap ExampleM () a
 tapShow
  = Tap
  { tapInfo = info "show" "Use builtin Show instance"
  , tapOut  = return . text . T.pack . show
  }
 
-tapPretty :: (a -> Doc ()) -> Tap ExamplePipe Var a
+tapPretty :: (a -> Doc ()) -> Tap ExampleM () a
 tapPretty f
  = Tap
  { tapInfo = info "pretty" "Use Pretty instance"
@@ -107,7 +102,7 @@ tapPretty f
 
 
 
-sectionDo :: (u -> SectionM c n v) -> SectionPre c n u v
+sectionDo :: (u -> FreshT n m v) -> SectionPre m n u v
 sectionDo f
  = SectionPre f (TapConfig $ Set.fromList [Id "show", Id "pretty"])
 

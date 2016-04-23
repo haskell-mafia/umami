@@ -11,14 +11,14 @@ import Umami.Pipeline.Section
 import Umami.Monad.FreshT
 
 
-data Pipe c u v where
+data Pipe m ann u v where
  PipeNest    :: Info
-             -> Pipe c u v
-             -> Pipe c u v
+             -> Pipe    m ann u v
+             -> Pipe    m ann u v
  PipeSection :: FreshFun n
-             -> Section c n u v
-             -> Pipe    c u v
- PipeCompose :: Pipe    c u v
-             -> Pipe    c v w
-             -> Pipe    c u w
+             -> Section m ann n u v
+             -> Pipe    m ann u v
+ PipeCompose :: Pipe    m ann u v
+             -> Pipe    m ann v w
+             -> Pipe    m ann u w
 

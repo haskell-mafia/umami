@@ -35,7 +35,7 @@ prettyIdPath (IdPath is)
   $ fmap prettyId
   $ reverse is
 
-prettySection :: (Section c n u v) -> Doc b
+prettySection :: Section m b n u v -> Doc b
 prettySection s
   =
   vcat 
@@ -49,7 +49,7 @@ prettySection s
     = prefixIf (l <> line) (indent r)
 
 
-prettyPipe :: (Pipe c u v) -> Doc b
+prettyPipe :: Pipe m b u v -> Doc b
 prettyPipe (PipeNest i p)
   = prettyInfo i </> indent (prettyPipe p)
 prettyPipe (PipeSection _ s)
@@ -58,7 +58,7 @@ prettyPipe (PipeCompose a b)
   = prettyPipe a </> prettyPipe b
 
 
-prettyStep :: (Step c n a) -> Doc b
+prettyStep :: Step m n a -> Doc b
 prettyStep s
   = prettyInfo (stepInfo s) </> prettyStepRun (stepRun s) </> taps
   where
@@ -66,7 +66,7 @@ prettyStep s
     = prefixIf (" taps: " <> tab)
                (prettyTapConfig $ stepTaps s)
 
-prettyStepRun :: (StepRun m a) -> Doc b
+prettyStepRun :: StepRun m a -> Doc b
 prettyStepRun (StepRunMandatory _)
    = emptyDoc
 
@@ -85,7 +85,7 @@ prettyStepRun (StepRunFix _ c)
        then d
        else emptyDoc
 
-prettyTap :: (Tap c n a) -> Doc b
+prettyTap :: Tap m b a -> Doc b
 prettyTap = prettyInfo . tapInfo
 
 prettyTapConfig :: TapConfig -> Doc b

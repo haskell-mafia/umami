@@ -17,10 +17,10 @@ import              P
 
 import qualified    Data.Set as Set
 
-data Tap c n a
+data Tap m ann a
  = Tap
  { tapInfo  :: Info
- , tapOut   :: a -> SectionM c n (Doc (TypesAnnotation c))
+ , tapOut   :: a -> m (Doc ann)
  }
 
 newtype TapConfig
