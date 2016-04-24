@@ -2,17 +2,20 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Umami.Pretty.Combinators (
-    empty, text, line, space, tab, indent
+    emptyDoc, text, line, space, tab, indent
   , (</>), (<+>), (<#>)
   , hsep, vcat, hcat
   , annotate
 
-  , encloseSep, punctuate, fold, joined
+  , encloseSep, punctuate
+  , joinIf, joinAlways
+  , prefixIf, suffixIf
+  , emptyNotWhite
   ) where
 
 import              Umami.Pretty.Base
 
-import              P hiding (empty, fold)
+import              P
 
 
 {-
@@ -28,17 +31,18 @@ semiBraces      = encloseSep lbrace   rbrace  semi
 -}
 
 hsep :: [Doc a] -> Doc a
-hsep = fold (<+>)
+hsep = punctuate space
 
 vcat :: [Doc a] -> Doc a
-vcat = fold (</>)
+vcat = punctuate line
 
 hcat :: [Doc a] -> Doc a
-hcat = fold (<>)
+hcat = punctuate emptyDoc
 
 
-empty :: Doc a
-empty = Empty
+emptyDoc :: Doc a
+emptyDoc = Empty
+
 
 text :: Text -> Doc a
 text = Text
@@ -60,32 +64,40 @@ infixr 5 </>
 infixr 6 <+>
 
 (</>) :: Doc a -> Doc a -> Doc a
-(</>) = joined line
+(</>) = joinIf line
 
 (<+>) :: Doc a -> Doc a -> Doc a
-(<+>) = joined space
+(<+>) = joinIf space
 
 (<#>) :: Doc a -> Doc a -> Doc a
-(<#>) = joined tab
+(<#>) = joinAlways tab
 
 
-joined :: Doc a -> Doc a -> Doc a -> Doc a
-joined m l r = CatWith l m r
+joinIf :: Doc a -> Doc a -> Doc a -> Doc a
+joinIf m l r = CatWith CatFunAnd l m r
+
+prefixIf :: Doc a -> Doc a -> Doc a
+prefixIf l r = CatWith CatFunOr emptyDoc l r
+
+suffixIf :: Doc a -> Doc a -> Doc a
+suffixIf r l = CatWith CatFunOr l r emptyDoc
+
+joinAlways :: Doc a -> Doc a -> Doc a -> Doc a
+joinAlways m l r = l <> m <> r
+
+-- TODO: this should really be a primitive, and text "" should be considered white
+-- Or, 'text' and literal IsString should strip white, while providing a textRaw function that does not strip
+emptyNotWhite :: Doc a
+emptyNotWhite = Text ""
 
 annotate :: a -> Doc a -> Doc a
 annotate a d = Annotate a d
 
 
-fold :: (Doc a -> Doc a -> Doc a) -> [Doc a] -> Doc a
-fold _ []  = empty
-fold _ [d] = d
-fold f (d:ds)
- = f d (fold f ds)
-
 punctuate :: Doc a -> [Doc a] -> Doc a
-punctuate _ []      = empty
+punctuate _ []      = emptyDoc
 punctuate _ [d]     = d
-punctuate p (d:ds)  = CatWith d p (punctuate d ds)
+punctuate p (d:ds)  = joinIf p d (punctuate d ds)
 
 
 encloseSep :: Doc a -> Doc a -> Doc a -> [Doc a] -> Doc a

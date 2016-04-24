@@ -17,6 +17,7 @@ library
                      , either                          >= 4.3        && < 4.5
                      , ambiata-p
                      , text                            == 1.2.*
+                     , containers                      == 0.5.*
 
   ghc-options:
                        -Wall
@@ -32,12 +33,20 @@ library
                        Umami.Monad.FixT
 
                        Umami.Pretty.Base
-                       Umami.Pretty.Class
                        Umami.Pretty.Combinators
                        Umami.Pretty.Render
                        Umami.Pretty.Simple
                        Umami.Pretty.Tabular
                        Umami.Pretty
+
+                       Umami.Pipeline.Base
+                       Umami.Pipeline.Pipe
+                       Umami.Pipeline.Run
+                       Umami.Pipeline.Section
+                       Umami.Pipeline.Step
+                       Umami.Pipeline.Tap
+                       Umami.Pipeline.Pretty
+                       Umami.Pipeline
 
 test-suite test
   type:                exitcode-stdio-1.0
@@ -76,3 +85,6 @@ test-suite example
                      , ambiata-disorder-corpus
                      , ambiata-p
                      , text                            == 1.2.*
+                     , transformers                    >= 0.3        && < 0.5
+                     , either
+                     , containers

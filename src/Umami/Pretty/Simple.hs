@@ -38,15 +38,18 @@ convert rest
      -> let (d',de) = convert (IndentNo rest) d
         in  (IndentOn d', de)
 
-    D.CatWith l m r
+    D.CatWith cf l m r
      -> let (r',re) = convert rest r
             (m',_)  = convert r' m
             (l',le) = convert m' l
-        in if   re && le
+        in if   cfun cf re le
            then (l', True)
            else (fst $ convert r' l, re || le)
     D.Annotate a d
      -> let (d',de) = convert (AnnotNo a rest) d
         in  (AnnotOn a d', de)
 
+ where
+  cfun D.CatFunAnd = (&&)
+  cfun D.CatFunOr  = (||)
 
