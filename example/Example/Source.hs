@@ -7,6 +7,7 @@ import              Umami.Pretty
 
 import              P
 
+
 newtype Var
  = Var { getVar :: Text }
  deriving (Eq, Ord, Show)

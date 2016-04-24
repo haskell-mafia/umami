@@ -22,8 +22,8 @@ import Umami.Pretty
 import Umami.Monad.FreshT
 import Umami.Monad.FixT
 
-import              P
-import              Control.Monad.Trans.Class
+import P
+import Control.Monad.Trans.Class
 
 
 data RunConfig m m' ann

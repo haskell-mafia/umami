@@ -9,9 +9,9 @@ module Umami.Pipeline.Tap (
   , emptyTapConfig
   ) where
 
-import Umami.Pipeline.Base
+import              Umami.Pipeline.Base
 
-import Umami.Pretty
+import              Umami.Pretty
 
 import              P
 

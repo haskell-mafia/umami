@@ -12,6 +12,7 @@ import              Umami.Pretty
 import              P
 import qualified    Data.Text as T
 
+
 data Token
  = TVar Var
  | TParenL | TParenR

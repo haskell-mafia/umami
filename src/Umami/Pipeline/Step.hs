@@ -15,7 +15,7 @@ import Umami.Pipeline.Tap
 import Umami.Monad.FixT
 import Umami.Monad.FreshT
 
-import              P
+import P
 
 data Step m n a
  = Step

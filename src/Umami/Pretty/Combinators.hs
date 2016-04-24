@@ -7,7 +7,7 @@ module Umami.Pretty.Combinators (
   , hsep, vcat, hcat
   , annotate
 
-  , encloseSep, punctuate, fold
+  , encloseSep, punctuate
   , joinIf, joinAlways
   , prefixIf, suffixIf
   , emptyNotWhite
@@ -15,7 +15,7 @@ module Umami.Pretty.Combinators (
 
 import              Umami.Pretty.Base
 
-import              P hiding (fold)
+import              P
 
 
 {-
@@ -31,13 +31,13 @@ semiBraces      = encloseSep lbrace   rbrace  semi
 -}
 
 hsep :: [Doc a] -> Doc a
-hsep = fold (<+>)
+hsep = punctuate space
 
 vcat :: [Doc a] -> Doc a
-vcat = fold (</>)
+vcat = punctuate line
 
 hcat :: [Doc a] -> Doc a
-hcat = fold (<>)
+hcat = punctuate emptyDoc
 
 
 emptyDoc :: Doc a
@@ -93,12 +93,6 @@ emptyNotWhite = Text ""
 annotate :: a -> Doc a -> Doc a
 annotate a d = Annotate a d
 
-
-fold :: (Doc a -> Doc a -> Doc a) -> [Doc a] -> Doc a
-fold _ []  = emptyDoc
-fold _ [d] = d
-fold f (d:ds)
- = f d (fold f ds)
 
 punctuate :: Doc a -> [Doc a] -> Doc a
 punctuate _ []      = emptyDoc

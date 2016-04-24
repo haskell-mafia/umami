@@ -8,8 +8,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Example.Pipeline where
 
-import Example.Parse
-import Example.Source
+import              Example.Parse
+import              Example.Source
 
 import              Umami.Monad.FreshT
 import              Umami.Pretty
