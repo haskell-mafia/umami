@@ -7,8 +7,6 @@ import Example.Pipeline
 import              Umami.Pipeline
 import              Umami.Pretty
 import qualified    Umami.Pretty.Render  as PR
-import qualified    Umami.Pretty.Simple  as PS
-import qualified    Umami.Pretty.Tabular as PT
 
 import              P
 
