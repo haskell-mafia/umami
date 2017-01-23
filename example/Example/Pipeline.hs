@@ -21,7 +21,7 @@ import              P
 import qualified    Data.Text as T
 
 import              Control.Monad.Trans.Class
-import              Control.Monad.Trans.Either
+import              Control.Monad.Trans.Except
 
 import qualified    Data.Text.IO  as TIO
 import              System.IO     (IO)
@@ -63,7 +63,7 @@ sectionParse
    = lift $ parse t
 
 
-runConfig :: RunConfig ExampleM (EitherT (IdPath,Text) IO) ()
+runConfig :: RunConfig ExampleM (ExceptT (IdPath,Text) IO) ()
 runConfig
  = RunConfig
  { runConfigLift   = runlift
@@ -71,7 +71,7 @@ runConfig
  where
   runlift ip m
    = case m of
-     Left e -> left (ip,e)
+     Left e -> throwE (ip,e)
      Right r -> return r
 
   runput ip d
@@ -82,7 +82,7 @@ runConfig
 
 run :: (Show a, Show b) => Pipe ExampleM () a b -> a -> IO ()
 run p a
- = do r <- runEitherT $ runPipe runConfig p a
+ = do r <- runExceptT $ runPipe runConfig p a
       IO.putStrLn $ either show show r
 
 
